@@ -6,133 +6,310 @@
 <title>Health Today Slider</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --purple: #6741d9;
-    --purple-dark: #2d2a6e;
-    --purple-soft: #f1edff;
-    --text: #3d3d4e;
-    --muted: #8a8aa0;
-    --tick: #b9b4d6;
-    --track: #e6e2f5;
-    --bg: #f7f8fa;
-    --card: #ffffff;
-    --ok: #1fa35b;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; background: var(--bg); color: var(--text);
-    font-family: "Poppins", system-ui, sans-serif;
-  }
+:root {
+  --purple: #6741d9;
+  --purple-dark: #2d2a6e;
+  --purple-soft: #f1edff;
+  --text: #3d3d4e;
+  --muted: #8a8aa0;
+  --tick: #b9b4d6;
+  --track: #e6e2f5;
+  --bg: #f7f8fa;
+  --card: #ffffff;
+  --ok: #1fa35b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Poppins", system-ui, sans-serif;
+}
+
+.card {
+  width: 100%;
+  max-width: 760px;
+  margin: 16px auto;
+  padding: 20px;
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+  width: 100%;
+}
+
+.valuebox {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.value {
+  width: 100%;
+  padding: 16px 8px 14px;
+  border-radius: 12px;
+  background: var(--purple-soft);
+  text-align: center;
+}
+
+.value .num {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--purple);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.value .lbl {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--purple);
+  margin-top: 7px;
+  letter-spacing: .3px;
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+}
+
+.btn {
+  min-width: 0;
+  flex: 1;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--purple);
+  background: #fff;
+  color: var(--purple);
+  border-radius: 7px;
+  padding: 9px 5px;
+}
+
+.btn:hover:not(:disabled) { background: var(--purple-soft); }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn.primary { background: var(--purple); color: #fff; }
+.btn.primary:hover:not(:disabled) { background: #5532c4; }
+
+.toast {
+  font-size: 11px;
+  color: var(--ok);
+  min-height: 16px;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* Vertical scale */
+.scale {
+  display: grid;
+  grid-template-columns: 24px 36px minmax(0, 1fr);
+  gap: 6px;
+  min-width: 0;
+  align-items: stretch;
+  user-select: none;
+  touch-action: pan-y;
+}
+
+.labels, .rail, .anchors {
+  position: relative;
+  height: 360px;
+  min-width: 0;
+}
+
+.labels span {
+  position: absolute;
+  right: 0;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: var(--text);
+}
+
+.labels span.major { font-weight: 600; }
+
+.rail {
+  width: 36px;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.rail .track {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  transform: translateX(-50%);
+  background: var(--track);
+  border-radius: 3px;
+}
+
+.rail .fill {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 5px;
+  transform: translateX(-50%);
+  background: var(--purple);
+  border-radius: 3px;
+  height: 0;
+}
+
+.rail .tick {
+  position: absolute;
+  left: 50%;
+  height: 1px;
+  background: var(--tick);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.rail .tick.t1 { width: 9px; }
+.rail .tick.t5 { width: 15px; }
+.rail .tick.t10 {
+  width: 22px;
+  height: 2px;
+  background: var(--purple-dark);
+}
+
+.thumb {
+  position: absolute;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--purple);
+  transform: translate(-50%, 50%);
+  bottom: 0;
+  cursor: grab;
+  box-shadow: 0 1px 4px rgba(0,0,0,.15);
+  outline: none;
+  z-index: 2;
+}
+
+.thumb:focus-visible {
+  box-shadow: 0 0 0 4px rgba(103,65,217,.3);
+}
+
+.thumb.hidden { display: none; }
+.rail.dragging .thumb { cursor: grabbing; }
+
+.anchors span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.anchors span:last-child {
+  transform: translateY(-100%);
+}
+
+@media (max-width: 480px) {
   .card {
-    max-width: 760px; margin: 24px auto; background: var(--card);
-    border-radius: 12px; padding: 24px 28px 36px;
-    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    margin: 0;
+    padding: 16px 12px 20px;
+    border-radius: 0;
   }
-  h1 { font-size: 20px; color: var(--purple-dark); margin: 0 0 8px; font-weight: 600; }
-  h1 .req { color: #e03131; font-size: 14px; vertical-align: super; }
-  .intro p { margin: 4px 0; font-size: 15px; }
 
   .layout {
-    display: flex; gap: 48px; margin-top: 32px; align-items: flex-start;
-    justify-content: center; flex-wrap: wrap;
+    grid-template-columns: 108px minmax(0, 1fr);
+    gap: 12px;
   }
-  .valuebox { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+
   .value {
-    width: 130px; padding: 18px 8px 14px; border-radius: 14px;
-    background: var(--purple-soft); text-align: center;
+    padding: 14px 4px 12px;
+    border-radius: 10px;
   }
-  .value .num { font-size: 46px; font-weight: 800; color: var(--purple); line-height: 1; }
-  .value .lbl { font-size: 12px; font-weight: 600; color: var(--purple); margin-top: 8px; letter-spacing: .3px; }
-  .actions { display: flex; gap: 8px; }
+
+  .value .num { font-size: 34px; }
+  .value .lbl { font-size: 10px; }
+
+  .actions { gap: 5px; }
+
   .btn {
-    font: inherit; font-size: 14px; font-weight: 500; cursor: pointer;
-    border: 1px solid var(--purple); background: #fff; color: var(--purple);
-    border-radius: 8px; padding: 6px 14px;
+    font-size: 11px;
+    padding: 8px 2px;
+    border-radius: 6px;
   }
-  .btn:hover:not(:disabled) { background: var(--purple-soft); }
-  .btn:disabled { opacity: .4; cursor: not-allowed; }
-  .btn.primary { background: var(--purple); color: #fff; }
-  .btn.primary:hover:not(:disabled) { background: #5532c4; }
-  .toast { font-size: 13px; color: var(--ok); height: 18px; }
 
-  /* Scale */
-  .scale { display: flex; gap: 14px; user-select: none; touch-action: none; }
-  .labels, .ticks, .anchors { position: relative; height: 420px; }
-  .labels { width: 32px; }
-  .labels span {
-    position: absolute; right: 0; transform: translateY(-50%);
-    font-size: 14px; color: var(--text);
+  .scale {
+    grid-template-columns: 20px 30px minmax(0, 1fr);
+    gap: 4px;
   }
-  .labels span.major { font-weight: 600; }
-  .rail { position: relative; width: 44px; height: 420px; cursor: pointer; }
-  .rail .track {
-    position: absolute; left: 50%; top: 0; bottom: 0; width: 6px;
-    transform: translateX(-50%); background: var(--track); border-radius: 3px;
-  }
-  .rail .fill {
-    position: absolute; left: 50%; bottom: 0; width: 6px;
-    transform: translateX(-50%); background: var(--purple); border-radius: 3px;
-    height: 0;
-  }
-  .rail .tick {
-    position: absolute; left: 50%; height: 1px; background: var(--tick);
-    transform: translate(-50%, -50%);
-  }
-  .rail .tick.t1 { width: 12px; }
-  .rail .tick.t5 { width: 20px; }
-  .rail .tick.t10 { width: 30px; height: 2px; background: var(--purple-dark); }
-  .thumb {
-    position: absolute; left: 50%; width: 28px; height: 28px; border-radius: 50%;
-    background: #fff; border: 3px solid var(--purple);
-    transform: translate(-50%, 50%); bottom: 0; cursor: grab;
-    box-shadow: 0 1px 4px rgba(0,0,0,.15); outline: none;
-  }
-  .thumb:focus-visible { box-shadow: 0 0 0 4px rgba(103,65,217,.3); }
-  .thumb.hidden { display: none; }
-  .rail.dragging .thumb { cursor: grabbing; }
-  .anchors { width: 210px; }
-  .anchors span {
-    position: absolute; left: 0; transform: translateY(-50%);
-    font-size: 14px; color: var(--text);
-  }
-  .hint { text-align: center; color: var(--muted); font-size: 13px; margin-top: 18px; }
 
-  @media (max-width: 560px) {
-    .card { margin: 0; border-radius: 0; padding: 20px 16px 28px; }
-    .layout { gap: 28px; }
-    .anchors { width: 120px; }
-    .anchors span { font-size: 12px; }
-  }
+  .labels, .rail, .anchors { height: 340px; }
+
+  .labels span { font-size: 10px; }
+  .anchors span { font-size: 10px; line-height: 1.4; }
+
+  .rail { width: 30px; }
+  .rail .tick.t10 { width: 20px; }
+  .thumb { width: 22px; height: 22px; }
+}
+
+@media (max-width: 340px) {
+  .card { padding: 12px 8px 16px; }
+  .layout { grid-template-columns: 94px minmax(0, 1fr); gap: 8px; }
+  .scale { grid-template-columns: 18px 26px minmax(0, 1fr); gap: 3px; }
+  .labels span, .anchors span { font-size: 9px; }
+  .value .num { font-size: 30px; }
+  .btn { font-size: 10px; }
+}
 </style>
 </head>
 <body>
+
 <div class="card">
-  <div class="layout" style="margin-top:8px">
+  <div class="layout">
+
     <div class="valuebox">
       <div class="value" aria-live="polite">
         <div class="num" id="num">–</div>
         <div class="lbl">YOUR HEALTH<br>TODAY</div>
       </div>
+
       <div class="actions">
         <button class="btn" id="resetBtn" disabled>Reset</button>
         <button class="btn primary" id="copyBtn" disabled>Copy</button>
       </div>
-      <div class="toast" id="toast"></div>
+
+      <div class="toast" id="toast" aria-live="polite"></div>
     </div>
 
     <div class="scale">
       <div class="labels" id="labels"></div>
+
       <div class="rail" id="rail">
         <div class="track"></div>
         <div class="fill" id="fill"></div>
         <div class="thumb hidden" id="thumb" tabindex="0" role="slider"
-             aria-label="Your health today" aria-valuemin="0" aria-valuemax="100"></div>
+             aria-label="Your health today" aria-valuemin="0"
+             aria-valuemax="100"></div>
       </div>
+
       <div class="anchors">
         <span style="top:0">The best health you can imagine</span>
         <span style="top:100%">The worst health you can imagine</span>
       </div>
     </div>
+
   </div>
 </div>
 
@@ -151,12 +328,13 @@
 
   const pct = v => ((v - MIN) / (MAX - MIN)) * 100;
 
-  // Ticks every 1, medium every 5, major + label every 10
   for (let v = MIN; v <= MAX; v++) {
     const t = document.createElement('div');
-    t.className = 'tick ' + (v % 10 === 0 ? 't10' : v % 5 === 0 ? 't5' : 't1');
+    t.className = 'tick ' +
+      (v % 10 === 0 ? 't10' : v % 5 === 0 ? 't5' : 't1');
     t.style.top = (100 - pct(v)) + '%';
     rail.insertBefore(t, fill);
+
     if (v % 10 === 0) {
       const s = document.createElement('span');
       s.textContent = v;
@@ -167,7 +345,10 @@
   }
 
   function setValue(v) {
-    value = v == null ? null : Math.max(MIN, Math.min(MAX, Math.round(v)));
+    value = v == null
+      ? null
+      : Math.max(MIN, Math.min(MAX, Math.round(v)));
+
     if (value == null) {
       num.textContent = '–';
       fill.style.height = '0';
@@ -180,6 +361,7 @@
       thumb.classList.remove('hidden');
       thumb.setAttribute('aria-valuenow', value);
     }
+
     resetBtn.disabled = copyBtn.disabled = value == null;
   }
 
@@ -190,46 +372,74 @@
   }
 
   rail.addEventListener('pointerdown', e => {
+    if (e.button !== undefined && e.button !== 0) return;
     rail.setPointerCapture(e.pointerId);
     rail.classList.add('dragging');
     fromPointer(e);
     thumb.focus({ preventScroll: true });
   });
+
   rail.addEventListener('pointermove', e => {
     if (rail.hasPointerCapture(e.pointerId)) fromPointer(e);
   });
-  const end = e => { rail.classList.remove('dragging'); };
+
+  const end = () => rail.classList.remove('dragging');
   rail.addEventListener('pointerup', end);
   rail.addEventListener('pointercancel', end);
+  rail.addEventListener('lostpointercapture', end);
 
   thumb.addEventListener('keydown', e => {
     const cur = value ?? 50;
-    const map = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1, PageUp: 10, PageDown: -10 };
-    if (e.key in map) { setValue(cur + map[e.key]); e.preventDefault(); }
-    else if (e.key === 'Home') { setValue(MIN); e.preventDefault(); }
-    else if (e.key === 'End') { setValue(MAX); e.preventDefault(); }
+    const map = {
+      ArrowUp: 1, ArrowRight: 1,
+      ArrowDown: -1, ArrowLeft: -1,
+      PageUp: 10, PageDown: -10
+    };
+
+    if (e.key in map) {
+      setValue(cur + map[e.key]);
+      e.preventDefault();
+    } else if (e.key === 'Home') {
+      setValue(MIN);
+      e.preventDefault();
+    } else if (e.key === 'End') {
+      setValue(MAX);
+      e.preventDefault();
+    }
   });
 
-  resetBtn.addEventListener('click', () => { setValue(null); flash(''); });
+  resetBtn.addEventListener('click', () => {
+    setValue(null);
+    flash('');
+  });
 
   function flash(msg) {
     toast.textContent = msg;
     clearTimeout(flash.t);
-    if (msg) flash.t = setTimeout(() => (toast.textContent = ''), 1800);
+    if (msg) {
+      flash.t = setTimeout(() => {
+        toast.textContent = '';
+      }, 1800);
+    }
   }
 
   copyBtn.addEventListener('click', async () => {
     if (value == null) return;
     const text = String(value);
+
     try {
       await navigator.clipboard.writeText(text);
     } catch {
       const ta = document.createElement('textarea');
-      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-      document.body.appendChild(ta); ta.select();
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
       try { document.execCommand('copy'); } catch {}
       ta.remove();
     }
+
     flash('Copied ' + text + ' ✓');
   });
 
